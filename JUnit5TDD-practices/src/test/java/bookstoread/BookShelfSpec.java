@@ -4,17 +4,20 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.*;
 
+import java.time.LocalDate;
+import java.time.Month;
 import java.time.Year;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
-@DisplayName("Book Shelf Spec Tests")
-@ExtendWith(BooksParameterResolver.class)
+@DisplayName("A book shelf")
 public class BookShelfSpec {
 
     private BookShelf bookShelf;
@@ -24,12 +27,12 @@ public class BookShelfSpec {
     private Book cleanCode;
 
     @BeforeEach
-    void init(Map<String, Book> books) {
+    void init() {
         bookShelf = new BookShelf();
-        this.effectiveJava = books.get("Effective Java");
-        this.codeComplete = books.get("Code Complete");
-        this.mythicalManMonth = books.get("The Mythical Man-Month");
-        this.cleanCode = books.get("Clean Code");
+        effectiveJava = new Book("Effective Java", "Joshua Bloch", LocalDate.of(2008, Month.MAY, 8));
+        codeComplete = new Book("Code Complete", "Steve McConnel", LocalDate.of(2004, Month.JUNE, 9));
+        mythicalManMonth = new Book("The Mythical Man-Month", "Frederick Phillips Brooks", LocalDate.of(1975, Month.JANUARY, 1));
+        cleanCode = new Book("Clean Code", "Robert C. Martin", LocalDate.of(2008, Month.AUGUST, 1));
     }
 
     @Nested
@@ -52,14 +55,15 @@ public class BookShelfSpec {
     @Nested
     class BooksAreAdded {
         @Test
+        @DisplayName("contains two books")
         void bookshelfContainsTwoBooksWhenTwoBooksAdded() {
             bookShelf.add(effectiveJava, codeComplete);
             List<Book> books = bookShelf.books();
-            assertEquals(2, books.size(), "BookShelf should have two books.");
+            assertEquals(2, books.size(), "BookShelf should have two books");
         }
 
-
         @Test
+        @DisplayName("returns an immutable books collection to client")
         void bookshelfIsImmutableForClient() {
             bookShelf.add(effectiveJava, codeComplete);
             List<Book> books = bookShelf.books();
@@ -67,7 +71,7 @@ public class BookShelfSpec {
                 books.add(mythicalManMonth);
                 fail("Should not be able to add book to books");
             } catch (Exception e) {
-                assertTrue(e instanceof UnsupportedOperationException, "Should throw UnsupportedOperationException.");
+                assertTrue(e instanceof UnsupportedOperationException, "BookShelf should throw UnsupportedOperationException");
             }
         }
     }
@@ -77,16 +81,16 @@ public class BookShelfSpec {
         @Test
         void bookshelfArrangedByBookTitle() {
             bookShelf.add(effectiveJava, codeComplete, mythicalManMonth);
-            List<Book> books = bookShelf.arrange(Comparator.<Book>naturalOrder().reversed());
-            assertEquals(Arrays.asList(mythicalManMonth, effectiveJava, codeComplete), books, "Books in a bookshelf should be arranged lexicographically by book title");
+            List<Book> bookList = bookShelf.arrange();
+            assertEquals(Arrays.asList(codeComplete, effectiveJava, mythicalManMonth), bookList, "Books in a bookshelf should be arranged lexicographically by book title");
         }
 
         @Test
         void bookshelfArrangedByUserProvidedCriteria() {
             bookShelf.add(effectiveJava, codeComplete, mythicalManMonth);
             Comparator<Book> reversed = Comparator.<Book>naturalOrder().reversed();
-            List<Book> books = bookShelf.arrange(reversed);
-            assertThat(books).isSortedAccordingTo(reversed);
+            List<Book> bookList = bookShelf.arrange(reversed);
+            assertThat(bookList).isSortedAccordingTo(reversed);
         }
 
         @Test
