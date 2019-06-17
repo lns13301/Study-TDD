@@ -12,13 +12,10 @@ public class BookShelf {
     private final List<Book> books = new ArrayList<>();
 
     public List<Book> books() {
-//        return books;
         return Collections.unmodifiableList(books);
     }
 
     public void add(Book... booksToAdd) {
-//        books.add(bookToAdd);
-//        Arrays.stream(bookToAdd).forEach(book -> books.add(book));
         Arrays.stream(booksToAdd).forEach(books::add);
     }
 
@@ -37,5 +34,15 @@ public class BookShelf {
 
     public <K> Map<K, List<Book>> groupBy(Function<Book, K> fx) {
         return books.stream().collect(groupingBy(fx));
+    }
+
+    public Progress progress() {
+        int booksRead = Long.valueOf(books.stream().filter(Book::isRead).count()).intValue();
+        int booksProgress = Long.valueOf(books.stream().filter(Book::isProgress).count()).intValue();
+        int booksToRead = books.size() - booksRead - booksProgress;
+        int percentageCompleted = booksRead * 100 / books.size();
+        int percentageToRead = booksToRead * 100 / books.size();
+        int percentageProgress = booksProgress * 100 / books.size();
+        return new Progress(percentageCompleted, percentageToRead, percentageProgress);
     }
 }
