@@ -38,7 +38,7 @@ public class Book implements Comparable<Book> {
         return finishedReadingOn;
     }
 
-    public void startReadingOn(LocalDate startedReadingOn) {
+    public void startedReadingOn(LocalDate startedReadingOn) {
         this.startedReadingOn = startedReadingOn;
     }
 

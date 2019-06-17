@@ -1,9 +1,7 @@
 package bookstoread;
 
-import org.junit.jupiter.api.Assumptions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -11,23 +9,16 @@ import java.time.Month;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("A bookshelf progress")
+@ExtendWith(BooksParameterResolver.class)
 public class BookShelfProgressSpec {
+
     private BookShelf bookShelf;
-    private Book effectiveJava;
-    private Book codeComplete;
-    private Book mythicalManMonth;
-    private Book cleanCode;
-    private Book refactoring;
 
     @BeforeEach
-    void init() {
-        effectiveJava = new Book("Effective Java", "Joshua Bloch", LocalDate.of(2008, Month.MAY, 8));
-        codeComplete = new Book("Code Complete", "Steve McConnel", LocalDate.of(2004, Month.JUNE, 9));
-        mythicalManMonth = new Book("The Mythical Man-Month", "Frederick Phillips Brooks", LocalDate.of(1975, Month.JANUARY, 1));
-        cleanCode = new Book("Clean Code", "Robert C. Martin", LocalDate.of(2008, Month.AUGUST, 1));
-        refactoring = new Book("Refactoring", "Martin Fowler", LocalDate.of(2003, Month.OCTOBER, 2));
+    void init(Book[] books, TestInfo testInfo) {
+        System.out.println("-----> " + testInfo.getDisplayName());
         bookShelf = new BookShelf();
-        bookShelf.add(effectiveJava, cleanCode, mythicalManMonth, codeComplete, refactoring);
+        bookShelf.add(books);
     }
 
     @Test
@@ -40,11 +31,16 @@ public class BookShelfProgressSpec {
 
     @Test
     @DisplayName("is 40% completed and 60% to-read when two books read and 3 books not read yet")
-    void progressWithCompletedAndToReadPercentages() {
-        effectiveJava.startReadingOn(LocalDate.of(2016,Month.JULY, 1));
-        effectiveJava.finishedReadingOn(LocalDate.of(2016,Month.JULY, 30));
-        cleanCode.startReadingOn(LocalDate.of(2016,Month.AUGUST, 1));
-        cleanCode.finishedReadingOn(LocalDate.of(2016,Month.AUGUST, 30));
+    void progressWithCompletedAndToReadPercentages(Book[] books) {
+        Assumptions.assumeTrue(bookShelf.books().stream().filter(b -> b == books[0]).count() == 1);
+        Assumptions.assumeTrue(bookShelf.books().stream().filter(b -> b == books[1]).count() == 1);
+
+        books[0].startedReadingOn(LocalDate.of(2016, Month.JULY, 1));
+        books[0].finishedReadingOn(LocalDate.of(2016, Month.JULY, 31));
+
+        books[1].startedReadingOn(LocalDate.of(2016, Month.AUGUST, 1));
+        books[1].finishedReadingOn(LocalDate.of(2016, Month.AUGUST, 31));
+
         Progress progress = bookShelf.progress();
         assertThat(progress.completed()).isEqualTo(40);
         assertThat(progress.toRead()).isEqualTo(60);
@@ -52,12 +48,18 @@ public class BookShelfProgressSpec {
 
     @Test
     @DisplayName("is 40% completed, 20% in-progress, and 40% to-read when 2 books read, 1 book in progress, and 2 books unread")
-    void reportProgressOfCurrentlyReadingBooks() {
-        effectiveJava.startReadingOn(LocalDate.of(2016,Month.JULY, 1));
-        effectiveJava.finishedReadingOn(LocalDate.of(2016,Month.JULY, 30));
-        codeComplete.startReadingOn(LocalDate.of(2016,Month.AUGUST, 1));
-        codeComplete.finishedReadingOn(LocalDate.of(2016,Month.AUGUST, 30));
-        mythicalManMonth.startReadingOn(LocalDate.of(2016, Month.SEPTEMBER, 1));
+    void reportProgressOfCurrentlyReadingBooks(Book[] books) {
+        Assumptions.assumeTrue(bookShelf.books().stream().filter(b -> b == books[0]).count() == 1);
+        Assumptions.assumeTrue(bookShelf.books().stream().filter(b -> b == books[1]).count() == 1);
+        Assumptions.assumeTrue(bookShelf.books().stream().filter(b -> b == books[2]).count() == 1);
+
+        books[0].startedReadingOn(LocalDate.of(2016, Month.JULY, 1));
+        books[0].finishedReadingOn(LocalDate.of(2016, Month.JULY, 31));
+
+        books[1].startedReadingOn(LocalDate.of(2016, Month.AUGUST, 1));
+        books[1].finishedReadingOn(LocalDate.of(2016, Month.AUGUST, 31));
+
+        books[2].startedReadingOn(LocalDate.of(2016, Month.SEPTEMBER, 1));
 
         Progress progress = bookShelf.progress();
 
