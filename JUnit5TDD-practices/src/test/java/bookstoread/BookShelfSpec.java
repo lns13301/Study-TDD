@@ -1,13 +1,12 @@
 package bookstoread;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.Year;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -112,4 +111,23 @@ public class BookShelfSpec {
 
         }
     }
+
+    @Test
+    void throwsExceptionWhenBooksAreAddedAfterCapacityIsReached() {
+        BookShelf bookShelf = new BookShelf(2);
+        bookShelf.add(effectiveJava, codeComplete);
+        BookShelfCapacityReached throwException = assertThrows(BookShelfCapacityReached.class, () -> bookShelf.add(mythicalManMonth));
+        assertEquals("BookShelf capacity of 2 is reached. You can't add more books.", throwException.getMessage());
+    }
+
+//    @Test
+//    void testShouldCompleteInOneSecond() {
+//        assertTimeoutPreemptively(Duration.of(1, ChronoUnit.SECONDS), () -> Thread.sleep(2000));
+//    }
+//
+//    @RepeatedTest(value = 10, name = "testRepeatedTest_{currentRepetition}/{totalRepetitions}")
+//    void testRepeatedTest() {
+//        assertTrue(true);
+//    }
+
 }

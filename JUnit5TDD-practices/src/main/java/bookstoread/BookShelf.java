@@ -3,7 +3,6 @@ package bookstoread;
 import java.time.Year;
 import java.util.*;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
@@ -11,13 +10,27 @@ import static java.util.stream.Collectors.groupingBy;
 public class BookShelf {
 
     private final List<Book> books = new ArrayList<>();
+    private final int capacity;
+
+    public BookShelf() {
+        this.capacity = Integer.MAX_VALUE;
+    }
+
+    public BookShelf(int capacity) {
+        this.capacity = capacity;
+    }
 
     public List<Book> books() {
         return Collections.unmodifiableList(books);
     }
 
     public void add(Book... booksToAdd) {
-        Arrays.stream(booksToAdd).forEach(books::add);
+        Arrays.stream(booksToAdd).forEach(book -> {
+            if (books.size() == capacity) {
+                throw new BookShelfCapacityReached(String.format("BookShelf capacity of %d is reached. You can't add more books.", this.capacity));
+            }
+            books.add(book);
+        });
     }
 
     public List<Book> arrange() {

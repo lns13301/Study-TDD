@@ -29,6 +29,9 @@ public class BookShelfProgressSpec {
         assertThat(progress.toRead()).isEqualTo(100);
     }
 
+
+    @Tag("nightly")
+    @Tag("generate-progress")
     @Test
     @DisplayName("is 40% completed and 60% to-read when two books read and 3 books not read yet")
     void progressWithCompletedAndToReadPercentages(Book[] books) {
